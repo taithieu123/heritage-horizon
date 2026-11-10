@@ -1,0 +1,209 @@
+---
+name: Heritage & Horizon Discovery
+colors:
+  surface: '#f3fbf6'
+  surface-dim: '#d3dcd7'
+  surface-bright: '#f3fbf6'
+  surface-container-lowest: '#ffffff'
+  surface-container-low: '#edf6f1'
+  surface-container: '#e7f0eb'
+  surface-container-high: '#e2eae5'
+  surface-container-highest: '#dce4e0'
+  on-surface: '#151d1a'
+  on-surface-variant: '#404945'
+  inverse-surface: '#2a322f'
+  inverse-on-surface: '#eaf3ee'
+  outline: '#707974'
+  outline-variant: '#c0c9c3'
+  surface-tint: '#376757'
+  primary: '#003629'
+  on-primary: '#ffffff'
+  primary-container: '#1b4d3e'
+  on-primary-container: '#8abda9'
+  inverse-primary: '#9ed1bd'
+  secondary: '#3d674e'
+  on-secondary: '#ffffff'
+  secondary-container: '#bcebcb'
+  on-secondary-container: '#416b52'
+  tertiary: '#521f00'
+  on-tertiary: '#ffffff'
+  tertiary-container: '#753000'
+  on-tertiary-container: '#ff9860'
+  error: '#ba1a1a'
+  on-error: '#ffffff'
+  error-container: '#ffdad6'
+  on-error-container: '#93000a'
+  primary-fixed: '#baeed9'
+  primary-fixed-dim: '#9ed1bd'
+  on-primary-fixed: '#002117'
+  on-primary-fixed-variant: '#1d4f40'
+  secondary-fixed: '#bfedce'
+  secondary-fixed-dim: '#a3d1b3'
+  on-secondary-fixed: '#002111'
+  on-secondary-fixed-variant: '#254f38'
+  tertiary-fixed: '#ffdbcb'
+  tertiary-fixed-dim: '#ffb690'
+  on-tertiary-fixed: '#341100'
+  on-tertiary-fixed-variant: '#783100'
+  background: '#f3fbf6'
+  on-background: '#151d1a'
+  surface-variant: '#dce4e0'
+typography:
+  display-hero:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 40px
+    fontWeight: '700'
+    lineHeight: 48px
+    letterSpacing: -0.02em
+  display-hero-mobile:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 30px
+    fontWeight: '700'
+    lineHeight: 38px
+    letterSpacing: -0.01em
+  headline-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 26px
+    fontWeight: '700'
+    lineHeight: 34px
+    letterSpacing: -0.01em
+  headline-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 20px
+    fontWeight: '600'
+    lineHeight: 28px
+  headline-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 17px
+    fontWeight: '600'
+    lineHeight: 24px
+  body-lg:
+    fontFamily: Be Vietnam Pro
+    fontSize: 16px
+    fontWeight: '400'
+    lineHeight: 24px
+  body-md:
+    fontFamily: Be Vietnam Pro
+    fontSize: 14px
+    fontWeight: '400'
+    lineHeight: 21px
+  body-sm:
+    fontFamily: Be Vietnam Pro
+    fontSize: 12px
+    fontWeight: '400'
+    lineHeight: 18px
+  label-md:
+    fontFamily: Be Vietnam Pro
+    fontSize: 13px
+    fontWeight: '600'
+    lineHeight: 18px
+    letterSpacing: 0.02em
+  label-sm:
+    fontFamily: Be Vietnam Pro
+    fontSize: 11px
+    fontWeight: '600'
+    lineHeight: 14px
+    letterSpacing: 0.04em
+  sensor-mono:
+    fontFamily: Be Vietnam Pro
+    fontSize: 12px
+    fontWeight: '500'
+    lineHeight: 16px
+rounded:
+  sm: 0.25rem
+  DEFAULT: 0.5rem
+  md: 0.75rem
+  lg: 1rem
+  xl: 1.5rem
+  full: 9999px
+spacing:
+  gutter: 1rem
+  margin: 1.25rem
+  space-xs: 0.25rem
+  space-sm: 0.5rem
+  space-md: 1rem
+  space-lg: 1.5rem
+  space-xl: 2.25rem
+---
+
+## Brand & Style
+
+### Brand Personality & Mission
+The design system bridges historical heritage, culinary culture, and physical exploration through sensory technology (real-time geolocation, compass direction, and augmented reality camera viewports). The aesthetic is grounded, natural, and inviting, yet technologically crisp. It embodies a spirit of mindful wanderlust—encouraging users to explore authentic landmarks and savor local cuisines with clarity, comfort, and reverence for traditional roots.
+
+### Visual Aesthetic & Movement
+- **Natural Organic Modernism:** Combines refined botanical greens (deep emerald and calm herbal sage) with warm culinary undertones (sunlit terracotta and amber gold).
+- **Tactile Soft Surfaces & HUD Glass:** Standard browsing interfaces rely on calm, off-white organic surfaces with delicate structural separation. Real-time sensor interfaces, interactive maps, and AR viewfinders utilize frosted glassmorphism (`backdrop-filter: blur(16px)`), luminous indicators, and precise spatial tags that sit naturally atop optical viewports.
+- **Tone:** Refined, welcoming, trustworthy, and contextually aware across high-mobility outdoor lighting conditions.
+
+## Colors
+
+### Palette Strategy
+- **Primary (`#1B4D3E` - Deep Imperial Emerald):** Represents ancient landscapes, forests, and cultural stability. Serves as the bedrock brand color for top navigation headers, primary key-action buttons, high-priority state indicators, and solid icon treatments.
+- **Secondary (`#76A286` - Herbal Sage):** Balances deep emerald with airy botanical softness. Ideal for secondary callouts, pill backgrounds, sensory status badges, and subtle highlighted borders.
+- **Tertiary (`#D96B27` - Terracotta Spice / Warm Amber):** Evokes street food aromas, woodfire cooking, vibrant spices, and warmth. Applied to food curation badges, spicy/flavor tag filters, price indicators, culinary highlights, and favorited states.
+- **Neutral (`#232B28` - Forest Slate):** Deep charcoal with a vegetal undertone to maintain natural warmth, avoiding cold digital blacks. Paired with background neutrals: `#FBFBF9` (Canvas Parchment) and `#F0F4F1` (Subtle Muted Sage).
+
+### Functional Overlay Tokens
+- **Camera/AR Overlay Surface:** `rgba(18, 30, 25, 0.72)` for dark environmental camera controls and dynamic sensor badges.
+- **Glass Card Tint:** `rgba(255, 255, 255, 0.82)` with 1px border `rgba(118, 162, 134, 0.20)` for real-world contextual tagging.
+
+## Typography
+
+### Rationale & Expressiveness
+- **Headlines (Plus Jakarta Sans):** Geometric clarity with soft, humane terminals. It delivers warmth, navigational authority, and high legibility across outdoor daylight conditions.
+- **Body & Functional UI (Be Vietnam Pro):** Purpose-built for superior rendering of complex diacritics and Vietnamese phonetics, ensuring local naming conventions (phố cổ, địa danh, ẩm thực) render cleanly without awkward vertical line jumps.
+- **Micro-labels & Telemetry (`sensor-mono`):** Clean, stable sans figures used for bearing calculations (`Hướng la bàn: 60.7°`), GPS coordinates, distances, and ingredient calorie stats.
+
+## Layout & Spacing
+
+### Mobile Architecture
+The layout is optimized around mobile form factors (iOS Human Interface Guidelines & Android Edge-to-Edge). 
+- **Margin:** Fixed at `1.25rem` (`20px`) for comfortable thumb sweeps and bezel safety on handheld devices.
+- **Gutter:** `1rem` (`16px`) between multi-column discovery grids (e.g., 2-column food cards or landmark collections).
+- **Spatial Hierarchy:**
+  - `space-xs` (4px): Micro gaps between sensor labels and coordinate readings.
+  - `space-sm` (8px): Icon-to-text gaps within tags, pill buttons, and ingredient chips.
+  - `space-md` (16px): Standard internal padding for cards and modal sheets.
+  - `space-lg` (24px): Structural gaps between major content sections (e.g., historical synopsis to nearby food carousels).
+  - `space-xl` (36px): Top separation before bottom action sheets and camera viewport margins.
+
+## Elevation & Depth
+
+### Atmospheric Tiers
+Depth balances physical organic layers with high-tech AR glass elements:
+- **Level 0 (Flat Canvas):** `#FBFBF9` base tone, grounded and calm.
+- **Level 1 (Card & Content Blocks):** Pure white `#FFFFFF` surface container with low-contrast structural boundary: `box-shadow: 0 4px 16px -2px rgba(27, 77, 62, 0.06)`, bounded by a soft ghost border `1px solid rgba(118, 162, 134, 0.16)`.
+- **Level 2 (Floating Action Controls & Sensor HUDs):** Tinted frosted backdrops `rgba(255, 255, 255, 0.88)` with `backdrop-filter: blur(14px)`, drop shadow `0 8px 24px -4px rgba(27, 77, 62, 0.12)`.
+- **Level 3 (Modal Sheets & AR Pointers):** High focal depth with `0 16px 36px -6px rgba(18, 30, 25, 0.22)`. Pins in the camera view utilize a warm radial pulse in `#D96B27` to denote focal proximity.
+
+## Shapes
+
+### Form Geometry
+The system uses rounded geometry (0.5rem / 8px baseline) that naturally fits human palm gestures:
+- **Base Components (Inputs, Chips, Small Cards):** `rounded-md` (8px to 12px) for structured utility.
+- **Content Cards & Viewport Previews:** `rounded-lg` (16px to 20px) providing friendly, approachable packaging for photography and sensory panels.
+- **Modals, Floating Camera Drawers, Bottom Sheets:** `rounded-xl` (24px to 28px on top edges) for ergonomic swipe gestures.
+- **Interactive Action Pills:** Fully circular radii (`9999px`) for quick-tap camera toggles, compass indicators, and navigation chips.
+
+## Components
+
+### 1. Buttons
+- **Primary Button (Action & Exploration):** Deep Emerald background (`#1B4D3E`), crisp white text, pill-shaped (`9999px`) or `rounded-lg` (14px). Inner padding: `12px 24px`. Subtle active state scaled to `0.98`.
+- **Secondary / Telemetry Pill (e.g., "Lấy GPS", "Bật camera"):** Pale Herbal Sage background (`rgba(118, 162, 134, 0.20)`), primary text (`#1B4D3E`), border `1px solid rgba(118, 162, 134, 0.35)`.
+- **Culinary Action Button:** Terracotta Orange (`#D96B27`) with white text, highlighting tasting journeys and restaurant reservations.
+
+### 2. AR Viewport & Sensor HUD
+- **Camera Frame Container:** Deep forest slate background (`#192823`) when inactive, edge radius `20px` with seamless integration into full screen mode.
+- **Sensor Data Card (Phòng thí nghiệm cảm biến):** Light jade container (`#F3F7F4`), thin stroke `1px solid #DFE8E2`. Section label in uppercase emerald bold (`#1B4D3E`), coordinate values set in stable weight typography.
+- **Real-Time AR Tag:** Glass badge with an emerald destination icon, destination distance (e.g., `250m`), and culinary indicator (terracotta dot for food heritage).
+
+### 3. Cards
+- **Heritage Landmark Card:** High-bleed landscape photo with rounded top, white lower container displaying title in Plus Jakarta Sans (`headline-sm`), distance chip, and audio-tour badge.
+- **Food Discovery Card:** Terracotta or spice rating badge pinned to the top-right (`#D96B27`), bold dish name, flavor profile tags (e.g., "Gia truyền", "Cay nhẹ", "Đặc sản"), and average price range.
+
+### 4. Chips & Filters
+- **Filter Pills:** Height `36px`, rounded `9999px`, background `#FFFFFF` with muted boundary `#E0E6E2`. When active: solid `#1B4D3E` with white text, or solid `#D96B27` for food-specific categories.
+
+### 5. Input Fields & Search Bars
+- **Exploration Search Bar:** Integrated location search with leading pin icon, soft white surface, `16px` radius, ambient blur when scrolling under headers, and trailing quick-toggle camera icon.
