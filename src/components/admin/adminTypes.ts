@@ -116,3 +116,13 @@ export interface AdminCulinaryRecord {
   status: 'serving' | 'paused';
   imageUrl: string;
 }
+
+export interface AdminAllergenRecord {
+  id: string;
+  code: string;
+  name: string;
+  risk_level: 'danger' | 'warning' | 'safe' | 'info';
+  symptoms_desc: string;
+  common_in_dishes: string;
+  created_at?: string;
+}

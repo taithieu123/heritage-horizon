@@ -115,13 +115,13 @@ FROM culinary_items;`;
         <div className="p-4 bg-white rounded-2xl border border-[#c9dbd0] shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-[#707974] uppercase tracking-wider block">
-              BẢNG TINH GỌN
+              BẢNG CƠ SỞ DỮ LIỆU
             </span>
             <span className="font-display font-extrabold text-2xl text-[#151d1a] block mt-1">
-              4 Bảng
+              8 Bảng Chuẩn
             </span>
             <span className="text-[11px] text-emerald-700 font-medium">
-              Không rườm rà, dễ mở rộng
+              Đồng bộ 100% Web & Mobile App
             </span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#edf6f1] text-[#1B4D3E] flex items-center justify-center">
@@ -397,6 +397,62 @@ FROM culinary_items;`;
               <p>• <strong>verification_status</strong> (Verified / Pending / Need Inspection)</p>
             </div>
           </div>
+
+          <div className="p-5 bg-white rounded-2xl border border-[#c9dbd0] shadow-xs space-y-3">
+            <div className="flex items-center gap-2">
+              <Table className="w-4 h-4 text-orange-600" />
+              <h4 className="font-bold text-xs text-[#151d1a]">5. urgent_verification_tasks (Hồ sơ Thẩm định)</h4>
+            </div>
+            <p className="text-[11px] text-[#707974]">
+              Theo dõi các hồ sơ ẩm thực cần kiểm tra thực địa và phê duyệt tích xanh.
+            </p>
+            <div className="p-2.5 rounded-xl bg-[#f8faf9] text-[10px] font-mono space-y-1 text-[#404945]">
+              <p>• <strong>id</strong> (PK), <strong>name</strong>, <strong>address</strong>, <strong>dish_name</strong></p>
+              <p>• <strong>coords</strong>, <strong>status</strong> (pending / verified / rejected)</p>
+            </div>
+          </div>
+
+          <div className="p-5 bg-white rounded-2xl border border-[#c9dbd0] shadow-xs space-y-3">
+            <div className="flex items-center gap-2">
+              <Table className="w-4 h-4 text-rose-600" />
+              <h4 className="font-bold text-xs text-[#151d1a]">6. calibration_alerts (Cảnh báo Hiệu chuẩn AR)</h4>
+            </div>
+            <p className="text-[11px] text-[#707974]">
+              Ghi nhận sai số cảm biến la bàn, góc ngắm HUD và lệch điểm neo AR thực địa.
+            </p>
+            <div className="p-2.5 rounded-xl bg-[#f8faf9] text-[10px] font-mono space-y-1 text-[#404945]">
+              <p>• <strong>id</strong> (PK), <strong>landmark_name</strong>, <strong>error_delta</strong></p>
+              <p>• <strong>reason</strong>, <strong>reported_by_users</strong>, <strong>resolved</strong></p>
+            </div>
+          </div>
+
+          <div className="p-5 bg-white rounded-2xl border border-[#c9dbd0] shadow-xs space-y-3">
+            <div className="flex items-center gap-2">
+              <Table className="w-4 h-4 text-blue-600" />
+              <h4 className="font-bold text-xs text-[#151d1a]">7. admin_activity_logs (Nhật ký Hoạt động)</h4>
+            </div>
+            <p className="text-[11px] text-[#707974]">
+              Lưu vết lịch sử thao tác của Super Admin, Thẩm định viên và Điều phối viên AR.
+            </p>
+            <div className="p-2.5 rounded-xl bg-[#f8faf9] text-[10px] font-mono space-y-1 text-[#404945]">
+              <p>• <strong>id</strong> (PK), <strong>user_name</strong>, <strong>user_role</strong></p>
+              <p>• <strong>action_desc</strong>, <strong>tags</strong>, <strong>created_at</strong></p>
+            </div>
+          </div>
+
+          <div className="p-5 bg-white rounded-2xl border border-[#c9dbd0] shadow-xs space-y-3">
+            <div className="flex items-center gap-2">
+              <Table className="w-4 h-4 text-purple-600" />
+              <h4 className="font-bold text-xs text-[#151d1a]">8. system_overview_stats (Chỉ số Thống kê)</h4>
+            </div>
+            <p className="text-[11px] text-[#707974]">
+              Lưu trữ các số liệu đo lường tổng thể hệ thống, tỷ lệ tăng trưởng và tỷ lệ giữ chân.
+            </p>
+            <div className="p-2.5 rounded-xl bg-[#f8faf9] text-[10px] font-mono space-y-1 text-[#404945]">
+              <p>• <strong>metric_key</strong> (PK), <strong>metric_value</strong>, <strong>metric_label</strong></p>
+              <p>• <strong>growth_percent</strong>, <strong>updated_at</strong></p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -405,7 +461,7 @@ FROM culinary_items;`;
         <div className="p-5 bg-white rounded-2xl border border-[#c9dbd0] shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#151d1a]">
-              Tệp SQL nguồn: <code>/database/mysql_workbench_schema.sql</code> (115 dòng tinh gọn)
+              Tệp SQL nguồn: <code>/database/mysql_workbench_schema.sql</code> (8 Bảng chuẩn doanh nghiệp, đồng bộ 100% Web & Mobile)
             </span>
             <button
               type="button"

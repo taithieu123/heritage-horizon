@@ -6,6 +6,11 @@ import {
   ADMIN_ACTIVITY_LOGS,
 } from './adminMockData';
 import {
+  UrgentVerificationTask,
+  CalibrationAlert,
+  AdminActivityLog,
+} from './adminTypes';
+import {
   Landmark,
   UtensilsCrossed,
   Store,
@@ -35,7 +40,9 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
 }) => {
   const [timeFilter, setTimeFilter] = useState<'today' | '7days' | 'month' | '2025'>('month');
   const [stats, setStats] = useState(ADMIN_STATS);
-  const [tasks, setTasks] = useState(URGENT_VERIFICATION_TASKS);
+  const [tasks, setTasks] = useState<UrgentVerificationTask[]>(URGENT_VERIFICATION_TASKS);
+  const [alerts, setAlerts] = useState<CalibrationAlert[]>(CALIBRATION_ALERTS);
+  const [logs, setLogs] = useState<AdminActivityLog[]>(ADMIN_ACTIVITY_LOGS);
   const [quickApprovedIds, setQuickApprovedIds] = useState<string[]>([]);
   const [calibratedIds, setCalibratedIds] = useState<string[]>([]);
 
@@ -49,23 +56,15 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
             ...prev,
             ...json.data,
           }));
-        }
-      })
-      .catch(() => {});
-
-    fetch('/api/database/restaurants')
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success && json.data?.length) {
-          const mapped = json.data.map((r: any) => ({
-            id: r.id,
-            name: r.name,
-            address: r.location.split('|')[0]?.trim() || r.location,
-            dishName: r.specialty_dish.split('(')[0]?.trim() || r.specialty_dish,
-            coords: r.location.split('|')[1]?.trim() || '21.0331° N, 105.8450° E',
-            status: r.verification_status === 'Verified' ? 'verified' : 'pending',
-          }));
-          setTasks(mapped);
+          if (json.data.urgentTasks && Array.isArray(json.data.urgentTasks)) {
+            setTasks(json.data.urgentTasks);
+          }
+          if (json.data.calibrationAlerts && Array.isArray(json.data.calibrationAlerts)) {
+            setAlerts(json.data.calibrationAlerts);
+          }
+          if (json.data.activityLogs && Array.isArray(json.data.activityLogs)) {
+            setLogs(json.data.activityLogs);
+          }
         }
       })
       .catch(() => {});
@@ -76,7 +75,7 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
   }, []);
 
   const handleQuickApprove = (id: string) => {
-    fetch(`/api/database/restaurants/${id}/verify`, { method: 'POST' })
+    fetch(`/api/database/tasks/${id}/verify`, { method: 'POST' })
       .then((r) => r.json())
       .then((json) => {
         if (json.success) {
@@ -90,7 +89,17 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
   };
 
   const handleCalibrate = (id: string) => {
-    setCalibratedIds((prev) => [...prev, id]);
+    fetch(`/api/database/calibration-alerts/${id}/resolve`, { method: 'POST' })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) {
+          setCalibratedIds((prev) => [...prev, id]);
+          fetchDbData();
+        }
+      })
+      .catch(() => {
+        setCalibratedIds((prev) => [...prev, id]);
+      });
   };
 
   return (
@@ -627,8 +636,8 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
               </span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {CALIBRATION_ALERTS.map((alert) => {
-                  const isDone = calibratedIds.includes(alert.id);
+                {alerts.map((alert) => {
+                  const isDone = calibratedIds.includes(alert.id) || (alert as any).resolved;
                   return (
                     <div
                       key={alert.id}
@@ -690,7 +699,7 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
 
             {/* Activity Stream */}
             <div className="relative pl-4 space-y-5 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#edf6f1]">
-              {ADMIN_ACTIVITY_LOGS.map((log) => (
+              {logs.map((log) => (
                 <div key={log.id} className="relative space-y-1">
                   <span className="absolute -left-4 top-1.5 w-2 h-2 rounded-full bg-[#1B4D3E] ring-4 ring-white" />
                   <div className="flex items-center justify-between text-xs">
@@ -707,7 +716,7 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
                   </p>
                   {log.tags && (
                     <div className="flex items-center gap-1.5 pt-1">
-                      {log.tags.map((tag, i) => (
+                      {log.tags.map((tag: string, i: number) => (
                         <span
                           key={i}
                           className="px-1.5 py-0.5 rounded-md bg-[#edf6f1] text-[#1B4D3E] font-mono text-[9px] font-bold"

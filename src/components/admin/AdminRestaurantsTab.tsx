@@ -90,6 +90,10 @@ export const AdminRestaurantsTab: React.FC = () => {
     setTimeout(() => setShowToast(false), 4500);
   };
 
+  const pendingCount = restaurants.filter((r) => r.status === 'pending' && !approvedIds.includes(r.id)).length;
+  const verifiedCount = restaurants.filter((r) => r.status === 'verified' || approvedIds.includes(r.id)).length;
+  const needInspectCount = restaurants.filter((r) => r.status === 'need_inspect').length;
+
   const filteredList = restaurants.filter((r) => {
     if (activeFilterTab === 'all') return true;
     if (activeFilterTab === 'pending') return r.status === 'pending' && !approvedIds.includes(r.id);
@@ -162,12 +166,12 @@ export const AdminRestaurantsTab: React.FC = () => {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display font-extrabold text-2xl text-[#151d1a]">612</span>
+            <span className="font-display font-extrabold text-2xl text-[#151d1a]">{restaurants.length}</span>
             <span className="text-xs text-[#707974]">quán</span>
-            <span className="text-[11px] text-emerald-700 font-semibold ml-auto">↗ +14 tháng này</span>
+            <span className="text-[11px] text-emerald-700 font-semibold ml-auto">✓ 100% Đồng bộ DB</span>
           </div>
           <div className="w-full h-1.5 bg-gray-100 rounded-full mt-3 overflow-hidden">
-            <div className="w-4/5 h-full bg-[#1B4D3E] rounded-full" />
+            <div className="w-full h-full bg-[#1B4D3E] rounded-full" />
           </div>
         </div>
 
@@ -182,14 +186,17 @@ export const AdminRestaurantsTab: React.FC = () => {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display font-extrabold text-2xl text-[#D96B27]">48</span>
-            <span className="text-xs text-[#707974]">hồ sơ mới</span>
+            <span className="font-display font-extrabold text-2xl text-[#D96B27]">{pendingCount}</span>
+            <span className="text-xs text-[#707974]">hồ sơ</span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D96B27] text-white ml-auto">
               Cần xử lý
             </span>
           </div>
           <div className="w-full h-1.5 bg-orange-100 rounded-full mt-3 overflow-hidden">
-            <div className="w-1/2 h-full bg-[#D96B27] rounded-full" />
+            <div
+              className="h-full bg-[#D96B27] rounded-full"
+              style={{ width: `${restaurants.length ? (pendingCount / restaurants.length) * 100 : 0}%` }}
+            />
           </div>
         </div>
 
@@ -204,12 +211,17 @@ export const AdminRestaurantsTab: React.FC = () => {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display font-extrabold text-2xl text-emerald-700">542</span>
+            <span className="font-display font-extrabold text-2xl text-emerald-700">{verifiedCount}</span>
             <span className="text-xs text-[#707974]">chuẩn AR & GPS</span>
-            <span className="text-[11px] text-emerald-700 font-semibold ml-auto">88.5% hoàn tất</span>
+            <span className="text-[11px] text-emerald-700 font-semibold ml-auto">
+              {restaurants.length ? Math.round((verifiedCount / restaurants.length) * 100) : 0}% hoàn tất
+            </span>
           </div>
           <div className="w-full h-1.5 bg-emerald-100 rounded-full mt-3 overflow-hidden">
-            <div className="w-[88%] h-full bg-emerald-600 rounded-full" />
+            <div
+              className="h-full bg-emerald-600 rounded-full"
+              style={{ width: `${restaurants.length ? (verifiedCount / restaurants.length) * 100 : 0}%` }}
+            />
           </div>
         </div>
 
@@ -217,19 +229,22 @@ export const AdminRestaurantsTab: React.FC = () => {
         <div className="p-4 bg-white rounded-2xl border border-[#c9dbd0] shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-[#707974] uppercase tracking-wider">
-              KHIẾU NẠI / TẠM DỪNG
+              CẦN BỔ SUNG / KIỂM ĐỊNH
             </span>
-            <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
               <AlertTriangle className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display font-extrabold text-2xl text-rose-700">22</span>
-            <span className="text-xs text-[#707974]">cần đối soát</span>
-            <span className="text-[10px] text-rose-700 font-bold ml-auto">Sai lệch GPS &gt; 50m</span>
+            <span className="font-display font-extrabold text-2xl text-amber-800">{needInspectCount}</span>
+            <span className="text-xs text-[#707974]">cơ sở</span>
+            <span className="text-[10px] text-amber-800 font-bold ml-auto">Thiếu thực địa</span>
           </div>
-          <div className="w-full h-1.5 bg-rose-100 rounded-full mt-3 overflow-hidden">
-            <div className="w-1/6 h-full bg-rose-600 rounded-full" />
+          <div className="w-full h-1.5 bg-amber-100 rounded-full mt-3 overflow-hidden">
+            <div
+              className="h-full bg-amber-600 rounded-full"
+              style={{ width: `${restaurants.length ? (needInspectCount / restaurants.length) * 100 : 0}%` }}
+            />
           </div>
         </div>
       </div>
@@ -246,7 +261,7 @@ export const AdminRestaurantsTab: React.FC = () => {
                 : 'text-[#404945] hover:bg-[#edf6f1]'
             }`}
           >
-            Tất cả quán (612)
+            Tất cả quán ({restaurants.length})
           </button>
 
           <button
@@ -255,11 +270,11 @@ export const AdminRestaurantsTab: React.FC = () => {
             className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
               activeFilterTab === 'pending'
                 ? 'bg-[#D96B27] text-white shadow-2xs'
-                : 'text-[#404945] hover:bg-[#edf6f1]'
+                : 'text-[#404945] hover:bg-orange-50'
             }`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-white" />
-            <span>Chờ thẩm định (48)</span>
+            <Clock className="w-3.5 h-3.5" />
+            <span>Chờ thẩm định ({pendingCount})</span>
           </button>
 
           <button
@@ -268,23 +283,23 @@ export const AdminRestaurantsTab: React.FC = () => {
             className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
               activeFilterTab === 'verified'
                 ? 'bg-emerald-700 text-white shadow-2xs'
-                : 'text-[#404945] hover:bg-[#edf6f1]'
+                : 'text-[#404945] hover:bg-emerald-50'
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Đã xác thực (Verified) (542)</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Đã xác thực (Verified) ({verifiedCount})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveFilterTab('need_inspect')}
-            className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
               activeFilterTab === 'need_inspect'
-                ? 'bg-[#1B4D3E] text-white shadow-2xs'
-                : 'text-[#404945] hover:bg-[#edf6f1]'
+                ? 'bg-amber-700 text-white shadow-2xs'
+                : 'text-[#404945] hover:bg-amber-50'
             }`}
           >
-            Cần bổ sung hồ sơ
+            <span>Cần bổ sung ({needInspectCount})</span>
           </button>
         </div>
 
