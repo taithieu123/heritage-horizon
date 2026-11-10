@@ -1,0 +1,6 @@
+{
+  "name": "Heritage & Horizon Discovery",
+  "description": "Ứng dụng khám phá di sản lịch sử văn hóa, ẩm thực truyền thống và phòng thí nghiệm cảm biến AR với la bàn định hướng và GPS.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

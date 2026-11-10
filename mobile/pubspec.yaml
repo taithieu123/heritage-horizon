@@ -1,0 +1,28 @@
+name: heritage_horizon
+description: "Heritage & Horizon Discovery"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  sensors_plus: ^6.1.1
+  geolocator: ^13.0.2
+  camera: ^0.11.0+2
+  camera_android: ^0.10.9
+  flutter_tts: ^4.2.2
+  http: ^1.2.2
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
