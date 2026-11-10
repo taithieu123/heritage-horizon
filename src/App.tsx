@@ -78,6 +78,15 @@ export default function App() {
         }
       })
       .catch(() => {});
+
+    fetch('/api/bookmarks')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setSavedIds(json.data);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Sensor State (Defaults to 60.7° exactly as in Design Spec "Hướng la bàn: 60.7°")
@@ -166,6 +175,7 @@ export default function App() {
     setSavedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+    fetch(`/api/bookmarks/${id}`, { method: 'POST' }).catch(() => {});
   };
 
   // Play audio snippet from card

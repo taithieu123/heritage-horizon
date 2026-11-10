@@ -46,6 +46,35 @@ heritageRouter.get('/database/culinary', (req: Request, res: Response) => {
   });
 });
 
+// POST /api/database/culinary
+heritageRouter.post('/database/culinary', (req: Request, res: Response) => {
+  const created = db.addCulinaryItem(req.body);
+  res.status(201).json({
+    success: true,
+    data: created,
+  });
+});
+
+// GET /api/database/allergens
+heritageRouter.get('/database/allergens', (req: Request, res: Response) => {
+  const { search } = req.query;
+  const list = db.getAllergens(typeof search === 'string' ? search : undefined);
+  res.json({
+    success: true,
+    count: list.length,
+    data: list,
+  });
+});
+
+// POST /api/database/allergens
+heritageRouter.post('/database/allergens', (req: Request, res: Response) => {
+  const created = db.addAllergen(req.body);
+  res.status(201).json({
+    success: true,
+    data: created,
+  });
+});
+
 // GET /api/database/restaurants
 heritageRouter.get('/database/restaurants', (req: Request, res: Response) => {
   const { search } = req.query;
@@ -75,6 +104,40 @@ heritageRouter.get('/database/users', (_req: Request, res: Response) => {
   res.json({
     success: true,
     data: db.getUsers(),
+  });
+});
+
+// POST /api/database/tasks/:id/verify
+heritageRouter.post('/database/tasks/:id/verify', (req: Request, res: Response) => {
+  const updated = db.updateUrgentTaskStatus(req.params.id, 'verified');
+  if (!updated) {
+    return res.status(404).json({ success: false, error: 'Không tìm thấy tác vụ' });
+  }
+  res.json({
+    success: true,
+    message: 'Đã duyệt hồ sơ thực địa thành công',
+    data: updated,
+  });
+});
+
+// POST /api/database/calibration-alerts/:id/resolve
+heritageRouter.post('/database/calibration-alerts/:id/resolve', (req: Request, res: Response) => {
+  const updated = db.resolveCalibrationAlert(req.params.id);
+  if (!updated) {
+    return res.status(404).json({ success: false, error: 'Không tìm thấy cảnh báo hiệu chuẩn' });
+  }
+  res.json({
+    success: true,
+    message: 'Đã hoàn tất hiệu chuẩn không gian',
+    data: updated,
+  });
+});
+
+// GET /api/database/activity-logs
+heritageRouter.get('/database/activity-logs', (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: db.getActivityLogs(),
   });
 });
 

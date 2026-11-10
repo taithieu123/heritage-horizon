@@ -8,7 +8,14 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+
+  // Parse command line arguments: npm run dev -- --port 3000 --host 0.0.0.0
+  const portArgIndex = process.argv.indexOf('--port');
+  const portArg = portArgIndex !== -1 ? process.argv[portArgIndex + 1] : null;
+  // Cloud Run sets PORT=8080 for Nginx, so dev server must bind to 3000
+  const envPort = process.env.PORT && process.env.PORT !== '8080' ? process.env.PORT : null;
+  const PORT = Number(portArg || envPort || 3000);
+
   const isProduction = process.env.NODE_ENV === 'production';
 
   app.use(express.json());
@@ -21,13 +28,13 @@ async function startServer() {
   app.use('/database', express.static(path.resolve(__dirname, 'database')));
 
   if (!isProduction) {
-    // In development mode, mount Vite middleware
+    // In development mode, mount Vite middleware with hmr disabled to avoid port collisions
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        hmr: process.env.DISABLE_HMR !== 'true',
-        watch: process.env.DISABLE_HMR === 'true' ? null : {},
+        hmr: false,
+        watch: null,
       },
       appType: 'spa',
     });
@@ -41,14 +48,19 @@ async function startServer() {
     });
   }
 
-  app.listen(Number(PORT), '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n[Server] Heritage & Horizon Discovery is running!`);
     console.log(`  > Local:   http://localhost:${PORT}/`);
-    console.log(`  > Network: http://127.0.0.1:${PORT}/\n`);
+    console.log(`  > Network: http://0.0.0.0:${PORT}/\n`);
+  });
+
+  server.on('error', (err: any) => {
+    console.error('[Server Listen Error]', err);
+    process.exit(1);
   });
 }
 
 startServer().catch((err) => {
-  console.error('[Server Error]', err);
+  console.error('[Server Startup Error]', err);
   process.exit(1);
 });

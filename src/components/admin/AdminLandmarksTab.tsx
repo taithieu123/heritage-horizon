@@ -23,6 +23,8 @@ import {
   UtensilsCrossed,
   ShieldCheck,
   Radio,
+  X,
+  Check,
 } from 'lucide-react';
 
 interface AdminLandmarksTabProps {
@@ -39,28 +41,47 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [quickFilter, setQuickFilter] = useState<'all' | 'badinh' | 'ar' | 'maint'>('badinh');
+  const [quickFilter, setQuickFilter] = useState<'all' | 'badinh' | 'ar' | 'maint'>('all');
   const [checkedIds, setCheckedIds] = useState<string[]>([ADMIN_LANDMARKS[0].id]);
   const [isCalibrateModalOpen, setIsCalibrateModalOpen] = useState(false);
   const [dbRestaurants, setDbRestaurants] = useState<any[]>([]);
 
-  // Sync with Database API
-  useEffect(() => {
+  // Add Landmark Modal States
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [newLandmarkForm, setNewLandmarkForm] = useState({
+    code: '',
+    name: '',
+    category: 'Lịch sử',
+    badge: 'QG-ĐB' as 'QG-ĐB' | 'UNESCO' | 'DT-LS' | 'DT-KT',
+    address: '',
+    lat: '21.0359',
+    lng: '105.8336',
+    ar_heading: '120.0',
+    rating: '4.9',
+    has_3d_mesh: true,
+    has_audio: true,
+    image_url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
+  });
+
+  // Load Landmarks directly from Database
+  const loadLandmarks = () => {
     fetch('/api/database/landmarks')
       .then((res) => res.json())
       .then((json) => {
         if (json.success && json.data?.length) {
           const mapped: AdminLandmarkRecord[] = json.data.map((l: any) => {
-            const coordsStr = l.location.split('|')[1]?.trim() || '';
+            const coordsStr = l.location?.split('|')[1]?.trim() || '';
             const latVal = coordsStr ? parseFloat(coordsStr.split(',')[0]) : 21.0359;
             const lngVal = coordsStr ? parseFloat(coordsStr.split(',')[1]) : 105.8336;
-            const dName = l.location.includes('Ba Đình')
+            const dName = l.location?.includes('Ba Đình')
               ? 'Ba Đình'
-              : l.location.includes('Hoàn Kiếm')
+              : l.location?.includes('Hoàn Kiếm')
               ? 'Hoàn Kiếm'
-              : l.location.includes('Đống Đa')
+              : l.location?.includes('Đống Đa')
               ? 'Đống Đa'
-              : l.location.includes('Quận 1')
+              : l.location?.includes('Quận 1')
               ? 'Quận 1'
               : 'Trung tâm';
 
@@ -70,7 +91,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               name: l.name,
               subtitle: `${l.category} • Xếp hạng ${l.badge}`,
               district: dName,
-              address: l.location.split('|')[0]?.trim() || l.location,
+              address: l.location?.split('|')[0]?.trim() || l.location,
               category: l.category === 'Lịch sử' ? 'historical' : l.category === 'Kiến trúc' ? 'architectural' : 'scenic',
               badge: l.badge,
               coordsFormatted: `${latVal.toFixed(4)}° N, ${lngVal.toFixed(4)}° E`,
@@ -80,8 +101,8 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               headingDegrees: l.ar_heading,
               pitchDegrees: 12.4,
               rating: l.rating,
-              hasAR: l.has_3d_mesh,
-              hasAudio: l.has_audio,
+              hasAR: Boolean(l.has_3d_mesh),
+              hasAudio: Boolean(l.has_audio),
               geofenceRadius: 500,
               meshSizeMb: 14.2,
               meshLOD: 'LoD: Level 3',
@@ -91,10 +112,17 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
             };
           });
           setLandmarks(mapped);
-          setSelectedLandmark(mapped[0]);
+          setSelectedLandmark((prev) => {
+            const found = mapped.find((m) => m.id === prev?.id);
+            return found || mapped[0];
+          });
         }
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    loadLandmarks();
 
     fetch('/api/database/restaurants')
       .then((res) => res.json())
@@ -105,6 +133,62 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
       })
       .catch(() => {});
   }, []);
+
+  const handleCreateLandmark = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLandmarkForm.name.trim() || !newLandmarkForm.code.trim()) {
+      alert('Vui lòng nhập đầy đủ tên di tích và mã ký hiệu!');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        code: newLandmarkForm.code.trim(),
+        name: newLandmarkForm.name.trim(),
+        category: newLandmarkForm.category,
+        badge: newLandmarkForm.badge,
+        location: `${newLandmarkForm.address.trim() || newLandmarkForm.name.trim()} | ${newLandmarkForm.lat}, ${newLandmarkForm.lng}`,
+        ar_heading: parseFloat(newLandmarkForm.ar_heading) || 120.0,
+        rating: parseFloat(newLandmarkForm.rating) || 4.9,
+        has_3d_mesh: newLandmarkForm.has_3d_mesh,
+        has_audio: newLandmarkForm.has_audio,
+        image_url: newLandmarkForm.image_url.trim() || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
+        linked_foods_count: 8,
+      };
+
+      const res = await fetch('/api/database/landmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsAddModalOpen(false);
+        setToastMessage(`Đã thêm thành công di tích "${payload.name}" vào cơ sở dữ liệu!`);
+        setTimeout(() => setToastMessage(null), 4000);
+        loadLandmarks();
+        setNewLandmarkForm({
+          code: '',
+          name: '',
+          category: 'Lịch sử',
+          badge: 'QG-ĐB',
+          address: '',
+          lat: '21.0359',
+          lng: '105.8336',
+          ar_heading: '120.0',
+          rating: '4.9',
+          has_3d_mesh: true,
+          has_audio: true,
+          image_url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Có lỗi xảy ra khi lưu vào database.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Filtered landmarks
   const filteredList = landmarks.filter((lm) => {
@@ -168,6 +252,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
 
           <button
             type="button"
+            onClick={() => setIsAddModalOpen(true)}
             className="h-10 px-4 rounded-xl bg-[#1B4D3E] hover:bg-[#003629] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -176,7 +261,20 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
         </div>
       </div>
 
-      {/* 4 Metric Cards */}
+      {/* Success Notification Toast */}
+      {toastMessage && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800 text-xs font-medium animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+          <button type="button" onClick={() => setToastMessage(null)} className="text-emerald-700 hover:text-emerald-900">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* 4 Metric Cards - 100% Dynamic from Database */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 bg-white rounded-2xl border border-[#c9dbd0] shadow-2xs flex items-center justify-between">
           <div>
@@ -184,7 +282,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               TỔNG DI TÍCH NẠP
             </span>
             <span className="font-display font-extrabold text-2xl text-[#151d1a] block mt-1">
-              148
+              {landmarks.length}
             </span>
             <span className="text-[11px] text-emerald-700 font-medium">
               ✓ 100% định vị GPS
@@ -201,10 +299,10 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               MÔ HÌNH 3D AR SẴN SÀNG
             </span>
             <span className="font-display font-extrabold text-2xl text-[#151d1a] block mt-1">
-              92
+              {landmarks.filter((l) => l.hasAR).length}
             </span>
             <span className="text-[11px] text-orange-700 font-medium">
-              12 điểm đang quét LiDAR
+              {landmarks.filter((l) => !l.hasAR).length} điểm đang quét LiDAR
             </span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#D96B27] flex items-center justify-center">
@@ -218,7 +316,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               AUDIO THUYẾT MINH ĐA NGỮ
             </span>
             <span className="font-display font-extrabold text-2xl text-[#151d1a] block mt-1">
-              116
+              {landmarks.filter((l) => l.hasAudio).length}
             </span>
             <span className="text-[11px] text-[#707974] font-medium">
               🌐 VN / EN / FR / JP
@@ -235,7 +333,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               LIÊN KẾT ẨM THỰC VÙNG
             </span>
             <span className="font-display font-extrabold text-2xl text-[#151d1a] block mt-1">
-              428
+              {landmarks.reduce((acc, curr) => acc + (curr.linkedFoodsCount || 0), 0)}
             </span>
             <span className="text-[11px] text-[#707974] font-medium">
               🍴 Bán kính 800m trung bình
@@ -285,6 +383,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
               <option value="Hoàn Kiếm">Hoàn Kiếm</option>
               <option value="Đống Đa">Đống Đa</option>
               <option value="Tây Hồ">Tây Hồ</option>
+              <option value="Quận 1">Quận 1 (TP.HCM)</option>
             </select>
           </div>
         </div>
@@ -315,7 +414,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
                   : 'bg-[#f3fbf6] border border-[#c9dbd0] text-[#404945]'
               }`}
             >
-              Có AR Viewport (92)
+              Có AR Viewport ({landmarks.filter((l) => l.hasAR).length})
             </button>
 
             <button
@@ -327,7 +426,7 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
                   : 'bg-[#f3fbf6] border border-[#c9dbd0] text-[#404945]'
               }`}
             >
-              Bảo trì &gt; 5 ngày (2)
+              Cần quét 3D ({landmarks.filter((l) => !l.hasAR).length})
             </button>
           </div>
 
@@ -708,6 +807,237 @@ export const AdminLandmarksTab: React.FC<AdminLandmarksTabProps> = ({
           </div>
         </div>
       </div>
+
+      {/* MODAL: Thêm Di Tích Mới Vào Cơ Sở Dữ Liệu */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full border border-[#c9dbd0] shadow-2xl overflow-hidden my-8 animate-fadeIn">
+            {/* Modal Header */}
+            <div className="p-5 bg-gradient-to-r from-[#1B4D3E] to-[#003629] text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                  <Landmark className="w-5 h-5 text-[#baeed9]" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-base">Thêm Hồ Sơ Di Tích & Địa Danh Mới</h3>
+                  <p className="text-xs text-white/80">Lưu trực tiếp vào bảng heritage_landmarks chuẩn hóa WGS84</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleCreateLandmark} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                    Mã Di Tích (Code) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="VD: DT-HN-00125"
+                    value={newLandmarkForm.code}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, code: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs font-mono focus:outline-hidden focus:border-[#1B4D3E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                    Tên Di Tích <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="VD: Đền Quán Thánh"
+                    value={newLandmarkForm.name}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, name: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs font-bold focus:outline-hidden focus:border-[#1B4D3E]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                    Phân Loại
+                  </label>
+                  <select
+                    value={newLandmarkForm.category}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, category: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs focus:outline-hidden focus:border-[#1B4D3E]"
+                  >
+                    <option value="Lịch sử">Di tích Lịch sử</option>
+                    <option value="Kiến trúc">Kiến trúc Nghệ thuật</option>
+                    <option value="Danh thắng">Danh lam Thắng cảnh</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                    Xếp Hạng Bảo Tồn
+                  </label>
+                  <select
+                    value={newLandmarkForm.badge}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, badge: e.target.value as any })}
+                    className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs focus:outline-hidden focus:border-[#1B4D3E]"
+                  >
+                    <option value="QG-ĐB">QG-ĐB (Quốc gia Đặc biệt)</option>
+                    <option value="UNESCO">UNESCO (Di sản Thế giới)</option>
+                    <option value="DT-LS">DT-LS (Di tích Lịch sử)</option>
+                    <option value="DT-KT">DT-KT (Di tích Kiến trúc)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                  Địa Chỉ Cụ Thể
+                </label>
+                <input
+                  type="text"
+                  placeholder="VD: Đường Thanh Niên, Quán Thánh, Ba Đình, Hà Nội"
+                  value={newLandmarkForm.address}
+                  onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, address: e.target.value })}
+                  className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs focus:outline-hidden focus:border-[#1B4D3E]"
+                />
+              </div>
+
+              {/* Tọa độ chuẩn WGS84 & La bàn AR */}
+              <div className="p-3.5 bg-[#edf6f1]/60 rounded-2xl border border-[#c9dbd0] space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#1B4D3E]">
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>TỌA ĐỘ VỊ TRÍ WGS84 & THÔNG SỐ AR</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#404945] mb-1">
+                      Vĩ độ (Latitude)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="21.0359"
+                      value={newLandmarkForm.lat}
+                      onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, lat: e.target.value })}
+                      className="w-full h-9 px-2.5 rounded-lg bg-white border border-[#c9dbd0] text-xs font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#404945] mb-1">
+                      Kinh độ (Longitude)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="105.8336"
+                      value={newLandmarkForm.lng}
+                      onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, lng: e.target.value })}
+                      className="w-full h-9 px-2.5 rounded-lg bg-white border border-[#c9dbd0] text-xs font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#404945] mb-1">
+                      Góc La Bàn AR Heading (°)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="120.0"
+                      value={newLandmarkForm.ar_heading}
+                      onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, ar_heading: e.target.value })}
+                      className="w-full h-9 px-2.5 rounded-lg bg-white border border-[#c9dbd0] text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                    Đánh Giá Ban Đầu (★ 1.0 - 5.0)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    max="5"
+                    value={newLandmarkForm.rating}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, rating: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs focus:outline-hidden focus:border-[#1B4D3E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#151d1a] mb-1">
+                    Link Ảnh Đại Diện (URL)
+                  </label>
+                  <input
+                    type="url"
+                    value={newLandmarkForm.image_url}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, image_url: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl bg-[#f8faf9] border border-[#c9dbd0] text-xs focus:outline-hidden focus:border-[#1B4D3E]"
+                  />
+                </div>
+              </div>
+
+              {/* Tùy chọn AR & Audio */}
+              <div className="flex items-center gap-6 pt-2">
+                <label className="flex items-center gap-2 text-xs font-semibold text-[#151d1a] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newLandmarkForm.has_3d_mesh}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, has_3d_mesh: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#1B4D3E] accent-[#1B4D3E]"
+                  />
+                  <span>Tích hợp Mô hình 3D AR (Mesh LoD 3)</span>
+                </label>
+
+                <label className="flex items-center gap-2 text-xs font-semibold text-[#151d1a] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newLandmarkForm.has_audio}
+                    onChange={(e) => setNewLandmarkForm({ ...newLandmarkForm, has_audio: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#1B4D3E] accent-[#1B4D3E]"
+                  />
+                  <span>Audio Thuyết Minh Đa Ngữ AI</span>
+                </label>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#edf6f1]">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-[#c9dbd0] hover:bg-[#f8faf9] text-xs font-semibold text-[#404945] cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2.5 rounded-xl bg-[#1B4D3E] hover:bg-[#003629] text-white text-xs font-semibold flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <span>Đang lưu vào DB...</span>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Lưu Hồ Sơ Vào Database</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
